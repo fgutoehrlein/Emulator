@@ -8,6 +8,7 @@ void AVR_CPU::decode(uint16_t opcode) {
 	uint8_t instruction = opcode & 0xFF;
 	uint8_t Rd = (opcode >> 4) & 0x1F;
 	uint8_t Rr = (opcode >> 0) & 0x1F;
+
 	switch (instruction) {
 	case 0x00: // NOP
 		// No operation
@@ -15,69 +16,69 @@ void AVR_CPU::decode(uint16_t opcode) {
 
 	case 0x01: // MOVW
 		// Move word
-		regs[Rd] = regs[Rr];
+		registries[Rd] = registries[Rr];
 		break;
 
 	case 0x02: // MULS
 		// Multiply signed
-		int16_t result = (int8_t)regs[Rd] * (int8_t)regs[Rr];
+		int16_t result = (int8_t)registries[Rd] * (int8_t)registries[Rr];
 
 		//break apart result into lower and higher
-		regs[0] = (result & 0xFF); // low byte = 0x34
-		regs[1] = ((result >> 8) & 0xFF); // high byte = 0x12
+		registries[0] = (result & 0xFF); // low byte = 0x34
+		registries[1] = ((result >> 8) & 0xFF); // high byte = 0x12
 		break;
 
 	case 0x03: // FMUL
 		// Fractional Multiply Unsigned
-		uint16_t result = (uint8_t)regs[Rd] * (uint8_t)regs[Rr];
-		regs[0] = (result & 0xFF);
-		regs[1] = ((result >> 8) & 0xFF);
-		regs[Rd] = (result & 0x00FF);
-		regs[Rd + 1] = ((result >> 8) & 0x00FF);
+		uint16_t result = (uint8_t)registries[Rd] * (uint8_t)registries[Rr];
+		registries[0] = (result & 0xFF);
+		registries[1] = ((result >> 8) & 0xFF);
+		registries[Rd] = (result & 0x00FF);
+		registries[Rd + 1] = ((result >> 8) & 0x00FF);
 		break;
 
 	case 0x04: // FMULS
 		// Fractional Multiply signed
-		int16_t result = (int8_t)regs[Rd] * (int8_t)regs[Rr];
-		regs[0] = (result & 0xFF);
-		regs[1] = ((result >> 8) & 0xFF);
-		regs[Rd] = (result & 0x00FF);
-		regs[Rd + 1] = ((result >> 8) & 0x00FF);
+		int16_t result = (int8_t)registries[Rd] * (int8_t)registries[Rr];
+		registries[0] = (result & 0xFF);
+		registries[1] = ((result >> 8) & 0xFF);
+		registries[Rd] = (result & 0x00FF);
+		registries[Rd + 1] = ((result >> 8) & 0x00FF);
 		break;
 
 	case 0x05: // FMULSU
 		// Fractional Multiply signed with unsigned
-		int16_t result = (int8_t)regs[Rd] * (uint8_t)regs[Rr];
-		regs[0] = (result & 0xFF);
-		regs[1] = ((result >> 8) & 0xFF);
-		regs[Rd] = (result & 0x00FF);
-		regs[Rd + 1] = ((result >> 8) & 0x00FF);
+		int16_t result = (int8_t)registries[Rd] * (uint8_t)registries[Rr];
+		registries[0] = (result & 0xFF);
+		registries[1] = ((result >> 8) & 0xFF);
+		registries[Rd] = (result & 0x00FF);
+		registries[Rd + 1] = ((result >> 8) & 0x00FF);
 		break;
 
 	case 0x06: // LDI
 		// Load immediate
-		regs[Rd] = Rr;
+		registries[Rd] = Rr;
 		break;
 
 	case 0x07: // LDS
 		// Load direct from data space
-		regs[Rd] = mem[Rr];
+		registries[Rd] = mem[Rr];
 		break;
 
 	case 0x08: // LDS
 		// Store direct to data space
-		mem[Rr] = regs[Rd];
+		mem[Rr] = registries[Rd];
 		break;
 
 	case 0x09: // LPM
 		// Load program memory
-		regs[0] = mem[regs[Rd]];
+		registries[0] = mem[registries[Rd]];
 		break;
 
 	case 0x0A: // SPM
 		// Store Program Memory
-		uint16_t address = regs[Rd];
-		uint8_t data = regs[Rr];
+		uint16_t address = registries[Rd];
+		uint8_t data = registries[Rr];
 		mem[address] = data;
 		break;
 
@@ -98,7 +99,7 @@ AVR_CPU::AVR_CPU(unsigned int memory_size) {
 void AVR_CPU::init() {
 	// Clear all registers
 	for (int i = 0; i < 32; i++) {
-		regs[i] = 0;
+		registries[i] = 0;
 	}
 	// Clear memory
 	for (int i = 0; i < 65536; i++) {

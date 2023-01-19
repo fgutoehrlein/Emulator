@@ -4,7 +4,7 @@
 
 class AVR_CPU {
     // 6502 registers
-    std::array<uint8_t, 32> regs;
+    std::array<uint8_t, 32> registries;
 
     // 6502 memory
     std::vector<uint8_t> mem;
