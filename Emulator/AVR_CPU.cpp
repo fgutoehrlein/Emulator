@@ -133,19 +133,15 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 		break;
 	}
 
-			 // ADC instruction
-	case 0x1A: {
-		uint8_t Rd = byte_array[1] >> 4;
-		uint8_t Rr = byte_array[1] & 0x0F;
-
-		// Execute the ADC instruction
-		uint8_t result = registers[Rr] + registers[Rd] + flags->C;
-		registers[Rd] = result;
-		flags->C = (registers[Rr] > (result - flags->C));
+	case 0x03:{ // ADC instruction
+		uint8_t reg_a = registers[byte_array[1]];
+		uint8_t reg_b = registers[byte_array[2]];
+		uint16_t result = reg_a + reg_b + flags->C;
+		flags->C = (result > 0xff);
 		flags->Z = (result == 0);
 		flags->N = (result >> 7);
-		flags->V = ((registers[Rr] >> 7 == (registers[Rd] >> 7)) && ((registers[Rd] >> 7) != (result >> 7)));
-		flags->H = (((registers[Rr] & 0x0F) + (registers[Rd] & 0x0F) + flags->C) > 0x0F);
+		flags->V = (!((reg_a ^ reg_b) & 0x80) && ((reg_a ^ result) & 0x80));
+		registers[byte_array[1]] = result & 0xff;
 		break;
 	}
 

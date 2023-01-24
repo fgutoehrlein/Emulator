@@ -36,6 +36,34 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteAddCarry) {
     EXPECT_EQ(flags.N, false);
 }
 
+TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteADC) {
+    uint8_t instruction[] = { 0x03, 0x01, 0x02 }; // ADC instruction
+    cpu->write_register(1, 10);
+    cpu->write_register(2, 20);
+    flags_t flags;
+    flags.C = 1;
+    cpu->decode_and_execute(instruction, &flags);
+    EXPECT_EQ(cpu->read_register(1), (10 + 20 + 1));
+    EXPECT_EQ(flags.C, false);
+    EXPECT_EQ(flags.Z, false);
+    EXPECT_EQ(flags.N, false);
+    EXPECT_EQ(flags.V, false);
+}
+
+TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteADCCarry) {
+    uint8_t instruction[] = { 0x03, 0x01, 0x02 }; // ADC instruction
+    cpu->write_register(1, 250);
+    cpu->write_register(2, 20);
+    flags_t flags;
+    flags.C = 1;
+    cpu->decode_and_execute(instruction, &flags);
+    EXPECT_EQ(cpu->read_register(1), (250 + 20 + 1));
+    EXPECT_EQ(flags.C, false);
+    EXPECT_EQ(flags.Z, false);
+    EXPECT_EQ(flags.N, false);
+    EXPECT_EQ(flags.V, false);
+}
+
 TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteSub) {
     uint8_t instruction[] = { 0x18, 0x01, 0x02 }; // SUB instruction
     cpu->write_register(1, 10);
