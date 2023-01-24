@@ -102,8 +102,6 @@ flags_t ATtiny13A_CPU::get_flags() {
 
 void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 	uint8_t instruction = byte_array[0];
-	uint8_t Rd = byte_array[1] >> 4;
-	uint8_t Rr = byte_array[1] & 0x0F;
 
 	switch (instruction) {
 	case 0x00: { // NOP
@@ -112,7 +110,7 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 	}
 
 			 // SBC instruction
-	case 0x08: {
+	case 0x18: {
 		uint8_t reg_a = registers[byte_array[1]];
 		uint8_t reg_b = registers[byte_array[2]];
 		uint16_t result = reg_a - reg_b - (1 - flags->C);
@@ -125,7 +123,7 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 	}
 
 			 // SUB instruction
-	case 0x18: {
+	case 0x28: {
 		registers[byte_array[1]] -= registers[byte_array[2]];
 		flags->C = ((registers[byte_array[1]] - registers[byte_array[2]]) < 0);
 		flags->Z = ((registers[byte_array[1]] - registers[byte_array[2]]) == 0);
@@ -133,7 +131,44 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 		break;
 	}
 
-	case 0x03:{ // ADC instruction
+	case 0x96: {
+		// ADIW instruction for register X
+		uint16_t reg_val = (*X);
+		uint8_t immediate = byte_array[1];
+		uint16_t result = reg_val + immediate;
+		flags->C = (result > 0xffff);
+		flags->Z = (result == 0);
+		flags->N = (result >> 15);
+		flags->V = (((reg_val ^ immediate) & ~(reg_val ^ result)) >> 15);
+		(*X) = result & 0xffff;
+		break;
+	}
+	case 0x97: {
+		// ADIW instruction for register Y
+		uint16_t reg_val = (*Y);
+		uint8_t immediate = byte_array[1];
+		uint16_t result = reg_val + immediate;
+		flags->C = (result > 0xffff);
+		flags->Z = (result == 0);
+		flags->N = (result >> 15);
+		flags->V = (((reg_val ^ immediate) & ~(reg_val ^ result)) >> 15);
+		(*Y) = result & 0xffff;
+		break;
+	}
+	case 0x98: {
+		// ADIW instruction for register Z
+		uint16_t reg_val = (*Z);
+		uint8_t immediate = byte_array[1];
+		uint16_t result = reg_val + immediate;
+		flags->C = (result > 0xffff);
+		flags->Z = (result == 0);
+		flags->N = (result >> 15);
+		flags->V = (((reg_val ^ immediate) & ~(reg_val ^ result)) >> 15);
+		(*Z) = result & 0xffff;
+		break;
+	}
+
+	case 0x1C:{ // ADC instruction
 		uint8_t reg_a = registers[byte_array[1]];
 		uint8_t reg_b = registers[byte_array[2]];
 		uint16_t result = reg_a + reg_b + flags->C;
