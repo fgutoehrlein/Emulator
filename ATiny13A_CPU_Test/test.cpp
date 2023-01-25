@@ -113,7 +113,7 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteADIW_Y) {
     cpu->write_register(28, 0x10);
     cpu->decode_and_execute(instruction, &flags);
     EXPECT_EQ(cpu->read_register(28), 0x15);
-    EXPECT_FALSE(cpu->read_flag(6)); //Carry flag
+    EXPECT_FALSE(cpu->read_flag(6)); // Carry flag
     EXPECT_FALSE(cpu->read_flag(5)); // Zero flag
     EXPECT_FALSE(cpu->read_flag(4)); // Negative flag
     EXPECT_FALSE(cpu->read_flag(3)); // Two's complement overflow indicator

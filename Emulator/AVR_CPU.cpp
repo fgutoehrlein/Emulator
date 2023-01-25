@@ -100,6 +100,20 @@ flags_t ATtiny13A_CPU::get_flags() {
 	return this->flags;
 }
 
+bool ATtiny13A_CPU::read_flag(int index) {
+	switch (index) {
+	case 0: return this->flags.T; // T Flag
+	case 1: return this->flags.H; // Half Carry Flag
+	case 2: return this->flags.S; // Sign Flag
+	case 3: return this->flags.V; // Two's complement overflow indicator
+	case 4: return this->flags.N; // Negative Flag
+	case 5: return this->flags.Z; // Zero Flag
+	case 6: return this->flags.C; // Carry Flag
+	case 7: return this->flags.I; // Global Interrupt Enable/Disable Flag
+	default: return false;
+	}
+}
+
 void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 	uint8_t instruction = byte_array[0];
 
