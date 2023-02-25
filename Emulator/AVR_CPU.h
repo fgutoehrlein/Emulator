@@ -42,7 +42,7 @@ class ATtiny13A_CPU {
 
 public:
     // AVR instruction decode
-    void decode_and_execute(uint8_t* byte_array, flags_t* flags);
+    void decode_and_execute(uint8_t* byte_array);
 
     ATtiny13A_CPU();
     // Constructor for custom memory size (0x10000 == 64Kbytes of memory)

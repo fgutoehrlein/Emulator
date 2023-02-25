@@ -16,7 +16,7 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteAdd) {
     cpu->write_register(1, 10);
     cpu->write_register(2, 20);
     flags_t flags = cpu->get_flags();
-    cpu->decode_and_execute(instruction, &flags);
+    cpu->decode_and_execute(instruction);
     EXPECT_EQ(cpu->read_register(1), 30);
     EXPECT_EQ(cpu->read_flag(flags.C), false); // Carry flag
     EXPECT_EQ(cpu->read_flag(flags.Z), false); // Zero flag
@@ -29,7 +29,8 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteAdd_Carry) {
     cpu->write_register(2, 20);
     uint8_t bit_8Addition = (uint8_t)250 + 20;
     flags_t flags = cpu->get_flags();
-    cpu->decode_and_execute(instruction, &flags);
+    cpu->decode_and_execute(instruction);
+    flags = cpu->get_flags();
     EXPECT_EQ(cpu->read_register(1), (bit_8Addition));
     EXPECT_EQ(flags.C, true);  // Carry flag
     EXPECT_EQ(flags.Z, false); // Zero flag
@@ -42,7 +43,7 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteADC) {
     cpu->write_register(2, 20);
     flags_t flags = cpu->get_flags();
     flags.C = 1;
-    cpu->decode_and_execute(instruction, &flags);
+    cpu->decode_and_execute(instruction);
     EXPECT_EQ(cpu->read_register(1), (10 + 20 + 1));
     EXPECT_EQ(flags.C, false); // Carry flag
     EXPECT_EQ(flags.Z, false); // Zero flag
@@ -61,7 +62,7 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteADC_Carry) {
     cpu->write_register(2, 20);
     flags_t flags = cpu->get_flags();
     flags.C = 1;
-    cpu->decode_and_execute(instruction, &flags);
+    cpu->decode_and_execute(instruction);
     EXPECT_EQ(cpu->read_register(1), (250 + 20 + 1));
     EXPECT_EQ(flags.C, true);  // Carry flag
     EXPECT_EQ(flags.Z, false); // Zero flag
@@ -74,7 +75,7 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteSUB) {
     cpu->write_register(1, 20);
     cpu->write_register(2, 10);
     flags_t flags = cpu->get_flags();
-    cpu->decode_and_execute(instruction, &flags);
+    cpu->decode_and_execute(instruction);
     EXPECT_EQ(cpu->read_register(1), (20 - 10));
     EXPECT_EQ(flags.C, true);  // Carry flag
     EXPECT_EQ(flags.Z, false); // Zero flag
@@ -88,7 +89,7 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteSUB_Carry) {
     cpu->write_register(2, 20);
     flags_t flags = cpu->get_flags();
     flags.C = 0;
-    cpu->decode_and_execute(instruction, &flags);
+    cpu->decode_and_execute(instruction);
     EXPECT_EQ(cpu->read_register(1), (10 - 20));
     EXPECT_EQ(flags.C, false); // Carry flag
     EXPECT_EQ(flags.Z, false); // Zero flag
@@ -100,7 +101,7 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteADIW_X) {
     uint8_t instruction[2] = { 0x96, 0x05 };
     flags_t flags = cpu->get_flags();
     cpu->write_register(26, 0x10);
-    cpu->decode_and_execute(instruction, &flags);
+    cpu->decode_and_execute(instruction);
     EXPECT_EQ(cpu->read_register(26), 0x15);
     EXPECT_FALSE(cpu->read_flag(6)); //Carry flag
     EXPECT_FALSE(cpu->read_flag(5)); // Zero flag
@@ -112,7 +113,7 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteADIW_Y) {
     uint8_t instruction[2] = { 0x97, 0x05 };
     flags_t flags = cpu->get_flags();
     cpu->write_register(28, 0x10);
-    cpu->decode_and_execute(instruction, &flags);
+    cpu->decode_and_execute(instruction);
     EXPECT_EQ(cpu->read_register(28), 0x15);
     EXPECT_FALSE(cpu->read_flag(6)); // Carry flag
     EXPECT_FALSE(cpu->read_flag(5)); // Zero flag
@@ -124,7 +125,7 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteADIW_Z) {
     uint8_t instruction[2] = { 0x98, 0x05 };
     flags_t flags = cpu->get_flags();
     cpu->write_register(30, 0x10);
-    cpu->decode_and_execute(instruction, &flags);
+    cpu->decode_and_execute(instruction);
     EXPECT_EQ(cpu->read_register(30), 0x15);
     EXPECT_FALSE(cpu->read_flag(6)); //Carry flag
     EXPECT_FALSE(cpu->read_flag(5)); // Zero flag
@@ -136,7 +137,7 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteADIW_Carry) {
     uint8_t instruction[2] = { 0x96, 0xf0 };
     flags_t flags = cpu->get_flags();
     cpu->write_register(26, 0xff);
-    cpu->decode_and_execute(instruction, &flags);
+    cpu->decode_and_execute(instruction);
     EXPECT_EQ(cpu->read_register(26), 0xef);
     EXPECT_TRUE(cpu->read_flag(6)); //Carry flag
     EXPECT_FALSE(cpu->read_flag(5)); // Zero flag

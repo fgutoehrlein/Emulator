@@ -114,7 +114,7 @@ bool ATtiny13A_CPU::read_flag(int index) {
 	}
 }
 
-void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
+void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array) {
 	uint8_t instruction = byte_array[0];
 
 	switch (instruction) {
@@ -127,11 +127,11 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 	case 0x18: {
 		uint8_t reg_a = registers[byte_array[1]];
 		uint8_t reg_b = registers[byte_array[2]];
-		uint16_t result = reg_a - reg_b - (1 - flags->C);
-		flags->C = (result < 0xff);
-		flags->Z = (result == 0);
-		flags->N = (result >> 7);
-		flags->V = (((reg_a ^ reg_b) & (reg_a ^ result)) >> 7);
+		uint16_t result = reg_a - reg_b - (1 - this->flags.C);
+		this->flags.C = (result < 0xff);
+		this->flags.Z = (result == 0);
+		this->flags.N = (result >> 7);
+		this->flags.V = (((reg_a ^ reg_b) & (reg_a ^ result)) >> 7);
 		registers[byte_array[1]] = result & 0xff;
 		break;
 	}
@@ -139,9 +139,9 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 			 // SUB instruction
 	case 0x28: {
 		registers[byte_array[1]] -= registers[byte_array[2]];
-		flags->C = ((registers[byte_array[1]] - registers[byte_array[2]]) < 0);
-		flags->Z = ((registers[byte_array[1]] - registers[byte_array[2]]) == 0);
-		flags->N = (registers[byte_array[1]] >> 7);
+		this->flags.C = ((registers[byte_array[1]] - registers[byte_array[2]]) < 0);
+		this->flags.Z = ((registers[byte_array[1]] - registers[byte_array[2]]) == 0);
+		this->flags.N = (registers[byte_array[1]] >> 7);
 		break;
 	}
 
@@ -150,10 +150,10 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 		uint16_t reg_val = *this->X;
 		uint8_t immediate = byte_array[1];
 		uint16_t result = reg_val + immediate;
-		flags->C = (result > 0xffff);
-		flags->Z = (result == 0);
-		flags->N = (result >> 15);
-		flags->V = (((reg_val ^ immediate) & ~(reg_val ^ result)) >> 15);
+		this->flags.C = (result > 0xffff);
+		this->flags.Z = (result == 0);
+		this->flags.N = (result >> 15);
+		this->flags.V = (((reg_val ^ immediate) & ~(reg_val ^ result)) >> 15);
 		(*X) = result & 0xffff;
 		break;
 	}
@@ -162,10 +162,10 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 		uint16_t reg_val = (*Y);
 		uint8_t immediate = byte_array[1];
 		uint16_t result = reg_val + immediate;
-		flags->C = (result > 0xffff);
-		flags->Z = (result == 0);
-		flags->N = (result >> 15);
-		flags->V = (((reg_val ^ immediate) & ~(reg_val ^ result)) >> 15);
+		this->flags.C = (result > 0xffff);
+		this->flags.Z = (result == 0);
+		this->flags.N = (result >> 15);
+		this->flags.V = (((reg_val ^ immediate) & ~(reg_val ^ result)) >> 15);
 		(*Y) = result & 0xffff;
 		break;
 	}
@@ -174,10 +174,10 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 		uint16_t reg_val = (*Z);
 		uint8_t immediate = byte_array[1];
 		uint16_t result = reg_val + immediate;
-		flags->C = (result > 0xffff);
-		flags->Z = (result == 0);
-		flags->N = (result >> 15);
-		flags->V = (((reg_val ^ immediate) & ~(reg_val ^ result)) >> 15);
+		this->flags.C = (result > 0xffff);
+		this->flags.Z = (result == 0);
+		this->flags.N = (result >> 15);
+		this->flags.V = (((reg_val ^ immediate) & ~(reg_val ^ result)) >> 15);
 		(*Z) = result & 0xffff;
 		break;
 	}
@@ -185,11 +185,11 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 	case 0x1C:{ // ADC instruction
 		uint8_t reg_a = registers[byte_array[1]];
 		uint8_t reg_b = registers[byte_array[2]];
-		uint16_t result = reg_a + reg_b + flags->C;
-		flags->C = (result > 0xff);
-		flags->Z = (result == 0);
-		flags->N = (result >> 7);
-		flags->V = (!((reg_a ^ reg_b) & 0x80) && ((reg_a ^ result) & 0x80));
+		uint16_t result = reg_a + reg_b + this->flags.C;
+		this->flags.C = (result > 0xff);
+		this->flags.Z = (result == 0);
+		this->flags.N = (result >> 7);
+		this->flags.V = (!((reg_a ^ reg_b) & 0x80) && ((reg_a ^ result) & 0x80));
 		registers[byte_array[1]] = result & 0xff;
 		break;
 	}
@@ -199,9 +199,9 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 		uint8_t reg_b = registers[byte_array[2]];
 		uint16_t result = reg_a + reg_b;
 		registers[byte_array[1]] = (uint8_t)result;
-		flags->C = (result > 0xff);
-		flags->Z = (result == 0);
-		flags->N = (registers[byte_array[1]] >> 7);
+		this->flags.C = (result > 0xff);
+		this->flags.Z = (result == 0);
+		this->flags.N = (registers[byte_array[1]] >> 7);
 		break;
 	}
 
