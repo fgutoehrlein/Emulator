@@ -42,7 +42,7 @@ void ATtiny13A_CPU::init() {
 
 void ATtiny13A_CPU::execute_instruction(uint8_t* instruction) {
 	// Decode and execute instruction
-	decode_and_execute(instruction, &flags);
+	decode_and_execute(instruction);
 }
 
 uint8_t* ATtiny13A_CPU::load_compiled_file(char* filePath) {
