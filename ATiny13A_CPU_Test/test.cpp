@@ -27,9 +27,10 @@ TEST_F(ATtiny13A_CPU_Test, TestDecodeAndExecuteAdd_Carry) {
     uint8_t instruction[] = { 0x0C, 0x01, 0x02 }; // ADD instruction
     cpu->write_register(1, 250);
     cpu->write_register(2, 20);
+    uint8_t bit_8Addition = (uint8_t)250 + 20;
     flags_t flags = cpu->get_flags();
     cpu->decode_and_execute(instruction, &flags);
-    EXPECT_EQ(cpu->read_register(1), (250 + 20));
+    EXPECT_EQ(cpu->read_register(1), (bit_8Addition));
     EXPECT_EQ(flags.C, true);  // Carry flag
     EXPECT_EQ(flags.Z, false); // Zero flag
     EXPECT_EQ(flags.N, false); // Negative flag

@@ -147,7 +147,7 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 
 	case 0x96: {
 		// ADIW instruction for register X
-		uint16_t reg_val = (*X);
+		uint16_t reg_val = *this->X;
 		uint8_t immediate = byte_array[1];
 		uint16_t result = reg_val + immediate;
 		flags->C = (result > 0xffff);
@@ -195,9 +195,12 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array, flags_t* flags) {
 	}
 
 	case 0x0C: { //ADD Instruction
-		registers[byte_array[1]] += registers[byte_array[2]];
-		flags->C = ((registers[byte_array[1]] + registers[byte_array[2]]) > 0xff);
-		flags->Z = ((registers[byte_array[1]] + registers[byte_array[2]]) == 0);
+		uint8_t reg_a = registers[byte_array[1]];
+		uint8_t reg_b = registers[byte_array[2]];
+		uint16_t result = reg_a + reg_b;
+		registers[byte_array[1]] = (uint8_t)result;
+		flags->C = (result > 0xff);
+		flags->Z = (result == 0);
 		flags->N = (registers[byte_array[1]] >> 7);
 		break;
 	}
