@@ -100,6 +100,23 @@ flags_t ATtiny13A_CPU::get_flags() {
 	return this->flags;
 }
 
+
+void ATtiny13A_CPU::write_flag(int index, bool value) {
+	switch (index) {
+	case 0: this->flags.T = value; break; // T Flag
+	case 1: this->flags.H = value; break; // Half Carry Flag
+	case 2: this->flags.S = value; break; // Sign Flag
+	case 3: this->flags.V = value; break; // Two's complement overflow indicator
+	case 4: this->flags.N = value; break; // Negative Flag
+	case 5: this->flags.Z = value; break; // Zero Flag
+	case 6: this->flags.C = value; break; // Carry Flag
+	case 7: this->flags.I = value; break; // Global Interrupt Enable/Disable Flag
+	default: break;
+	}
+
+	return;
+}
+
 bool ATtiny13A_CPU::read_flag(int index) {
 	switch (index) {
 	case 0: return this->flags.T; // T Flag
@@ -123,7 +140,7 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array) {
 		break;
 	}
 
-			 // SBC instruction
+			 // SBC instruction Substract with Carry
 	case 0x18: {
 		uint8_t reg_a = registers[byte_array[1]];
 		uint8_t reg_b = registers[byte_array[2]];
@@ -136,12 +153,18 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array) {
 		break;
 	}
 
-			 // SUB instruction
+			 // SUB instruction Substract
 	case 0x28: {
 		registers[byte_array[1]] -= registers[byte_array[2]];
-		this->flags.C = ((registers[byte_array[1]] - registers[byte_array[2]]) < 0);
-		this->flags.Z = ((registers[byte_array[1]] - registers[byte_array[2]]) == 0);
+		this->flags.C = (registers[byte_array[1]] < 0);
+		this->flags.Z = (registers[byte_array[1]] == 0);
 		this->flags.N = (registers[byte_array[1]] >> 7);
+		break;
+	}
+
+			 // CLC instruction Clear Carry Flag
+	case 0x94: {
+		this->flags.C = false;
 		break;
 	}
 
@@ -182,26 +205,26 @@ void ATtiny13A_CPU::decode_and_execute(uint8_t* byte_array) {
 		break;
 	}
 
-	case 0x1C:{ // ADC instruction
+	case 0x1C: { // ADC instruction Add with Carry
 		uint8_t reg_a = registers[byte_array[1]];
 		uint8_t reg_b = registers[byte_array[2]];
 		uint16_t result = reg_a + reg_b + this->flags.C;
+		registers[byte_array[1]] = (uint8_t)result;
 		this->flags.C = (result > 0xff);
 		this->flags.Z = (result == 0);
-		this->flags.N = (result >> 7);
+		this->flags.N = (registers[byte_array[1]] >> 7); // shift 7 to the right to get MSB
 		this->flags.V = (!((reg_a ^ reg_b) & 0x80) && ((reg_a ^ result) & 0x80));
-		registers[byte_array[1]] = result & 0xff;
 		break;
 	}
 
-	case 0x0C: { //ADD Instruction
+	case 0x0C: { //ADD Instruction Add numbers
 		uint8_t reg_a = registers[byte_array[1]];
 		uint8_t reg_b = registers[byte_array[2]];
 		uint16_t result = reg_a + reg_b;
 		registers[byte_array[1]] = (uint8_t)result;
 		this->flags.C = (result > 0xff);
 		this->flags.Z = (result == 0);
-		this->flags.N = (registers[byte_array[1]] >> 7);
+		this->flags.N = (registers[byte_array[1]] >> 7); // shift 7 to the right to get MSB
 		break;
 	}
 

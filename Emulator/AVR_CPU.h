@@ -72,6 +72,9 @@ public:
     // Function to read a flag
     bool read_flag(int index);
 
+    // Function to write a flag
+    void write_flag(int index, bool value);
+
     // Function to get the Flags
     flags_t get_flags();
 
